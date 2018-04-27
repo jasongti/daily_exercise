@@ -6,8 +6,8 @@ def pickup(filename):
     with open(filename,'r') as f:
         a = f.read()
         lst = re.findall(r"\b[a-zA-Z]+\b", a)
-        lst.sort()
-    return lst
+        new_lst = sorted(list(set(lst)))
+    return new_lst
 def write_the_result(lst):
     with open('to.txt','w') as f:
         f.write('\n'.join(str(i) for i in lst))
