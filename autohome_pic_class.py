@@ -9,9 +9,9 @@ import os
 
 class code_collector(object):
 
-    def __init__(self, url='https://www.autohome.com.cn/car/'):
+    def __init__(self, url='https://www.autohome.com.cn/car/', letter='A'):
         self.url = url
-        self.regex = '<div class="uibox-con rank-list rank-list-pic" id="html'
+        self.regex = '<div class="uibox-con rank-list rank-list-pic" id="html%s' % letter
         self.code = self.get_the_code()
         print 'start collect the code'
 
@@ -32,18 +32,19 @@ class code_collector(object):
         return result
 
     # 获取各字母对应的html代码
-    def get_by_letter(self, letter):
+    def get_by_letter(self, letter='A'):
         if letter == 'Z':
-            result = re.findall(r"%s[\S\s]*?tab-content-item1" % self.regex+letter, self.code)[0]
+            result = re.findall(r"%s[\S\s]*?tab-content-item1" % self.regex, self.code)[0]
         else:
             try:
-                result = re.findall(r"%s[\S\s]*?vos=\"gs\"" % self.regex+letter, self.code)[0]
+                result = re.findall(r"%s[\S\s]*?vos=\"gs\"" % self.regex, self.code)[0]
             except:
                 return
         return result
 
     # 获取汽车品牌名称和logo地址
     def get_the_brand(self, result):
+        type(result)
         html = etree.HTML(result)
         # 品牌数量
         no_of_brand = len(html.xpath('//dl'))
@@ -55,19 +56,19 @@ class code_collector(object):
         return (no_of_brand,brand_name,brand_pic)
 
     # 下载品牌logo
-    def save_the_brand(self, brand, letter):
+    def save_the_brand(self, brand, j, letter):
         # 请求品牌logo链接
         path = '/Users/jason/autohome/%s' % letter
-        r = requests.get(brand[2])
+        r = requests.get(brand[2][j])
         if not os.path.exists(path):
             os.mkdir(path)
         # 设置保存的文件夹
-        brand_path = path + '/' + brand[1]
+        brand_path = path + '/' + brand[1][j]
         # 无对应文件时创建
         if not os.path.exists(brand_path):
             os.mkdir(brand_path)
         # 设置保存的文件路径和文件名称
-        this_path = brand_path + '/' + brand[1] + 'logo'
+        this_path = brand_path + '/' + brand[1][j] + 'logo'
         with open(this_path, 'wb') as f:
             f.write(r.content)
         # 返回品牌所在路径
@@ -128,11 +129,11 @@ if __name__ == '__main__':
         os.mkdir('/Users/jason/autohome')
     for i in range(65,66):
         letter = chr(i)
-        path = '/Users/jason/autohome/%s' % letter
+        # path = '/Users/jason/autohome/%s' % letter
         letter_code = autohome.get_by_letter(letter)
         brand = autohome.get_the_brand(letter_code)
         series = re.findall(r"<dd>[\S\s]*?</dd>", letter_code)
         for j in range(0,brand[0]):
-            brand_path = autohome.save_the_brand(brand, letter)
+            brand_path = autohome.save_the_brand(brand, j, letter)
             series_car = autohome.get_the_series(series[j], brand_path)
-            autohome.get_the_car(path, series_car)
+            autohome.get_the_car(brand_path, series_car)
