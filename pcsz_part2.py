@@ -2,6 +2,7 @@
 
 from bs4 import BeautifulSoup
 import requests
+from threading import Thread
 
 
 def get_pic_link():
@@ -27,23 +28,25 @@ def get_pic_link():
     return link_list
 
 
-def save_pic(link_list):
-    for link in link_list:
-        reties = 0
-        pic_name = link.split('/')[-1]
-        while reties < 3:
-            try:
-                pic = requests.get(link, timeout=10)
-            except:
-                reties += 1
-                print 'download the pic:%s failed %d times' % (pic_name, reties)
-            else:
-                with open('pic/%s' % pic_name, 'wb') as f:
-                    f.write(pic.content)
-                print 'download the pic:%s success' % pic_name
-                break
+def save_pic(link):
+    reties = 0
+    pic_name = link.split('/')[-1]
+    while reties < 3:
+        try:
+            pic = requests.get(link, timeout=10)
+        except:
+            reties += 1
+            print 'download the pic:%s failed %d times' % (pic_name, reties)
+        else:
+            with open('pic/%s' % pic_name, 'wb') as f:
+                f.write(pic.content)
+            print 'download the pic:%s success' % pic_name
+            break
     return
 
 
 if __name__ == '__main__':
-    save_pic(get_pic_link())
+    pic_link = get_pic_link()
+    for i in pic_link:
+        action = Thread(target=save_pic, args=(i,))
+        action.start()
