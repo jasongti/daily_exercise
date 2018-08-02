@@ -15,7 +15,7 @@ def get_the_code():
     # 等待页面载入
     time.sleep(5)
     # 页面为lazyloading，使用浏览器模拟翻页，间隔2秒
-    for i in range(0,1):
+    for i in range(0,2):
         browser.execute_script("window.scrollTo(0,document.body.scrollHeight)")
         time.sleep(2)
     # 获取html代码
@@ -40,7 +40,7 @@ def get_the_brand(result):
     # 品牌数量
     no_of_brand = len(html.xpath('//dl'))
     # 品牌logo列表
-    brand_pic = ['http:'+ i for i in html.xpath('//dt/a/img/@src')]
+    brand_pic = ['http:' + i for i in html.xpath('//dt/a/img/@src')]
     # 品牌名称列表
     brand_name = html.xpath('//dt/div/a/text()')
     # 返回品牌数量、品牌名称、品牌logo地址
@@ -72,7 +72,7 @@ def get_the_series(series,path):
     # 获取车系名称
     series_name = html.xpath('//div[@class="h3-tit"]/a/text()')
     # 遍历各车系
-    for i in range(0,len(series_name)):
+    for i in range(0, len(series_name)):
         # 组装为车型列表字典（车系名称：车系网页代码）
         series_car[series_name[i]] = series_car_list[i]
         # 创建车系文件夹路径
@@ -92,7 +92,7 @@ def get_the_car(path,series_car):
         # 获取车系下的车型链接地址列表
         car_link = html.xpath('//li/h4/a/@href')
         # 遍历车型
-        for j in range(0,len(car_name)):
+        for j in range(0, len(car_name)):
             # 初始化车型链接地址
             link = 'https:' + car_link[j].encode('utf8')
             # 获取车型页面的网页源码
@@ -105,7 +105,7 @@ def get_the_car(path,series_car):
                 car_pic_link = etree.HTML(car_code).xpath('//dl[@class="models_pics"]/dt/a/img/@src')[0]
             # 设置车型图片保存地址
             car_path = path + '/' + i + '/' + car_name[j]
-            car_pic = requests.get(car_pic_link)
+            car_pic = requests.get('https:'+car_pic_link.strip('https:'))
             # 保存车型图片
             with open(car_path, 'wb') as f:
                 f.write(car_pic.content)
@@ -118,7 +118,7 @@ if __name__ == '__main__':
     if not os.path.exists('/Users/jason/autohome'):
         os.mkdir('/Users/jason/autohome')
     # 遍历品牌首字母（A-Z）
-    for i in range(65,66):
+    for i in range(65,67):
         letter = chr(i)
         # 初始化首字母对应品牌的保存路径
         path = '/Users/jason/autohome/%s' % letter
@@ -133,7 +133,7 @@ if __name__ == '__main__':
         # 车系的网页源码正则匹配
         series = re.findall(r"<dd>[\S\s]*?</dd>",result)
         # 遍历各品牌
-        for i in range(0,brand[0]):
+        for i in range(0, brand[0]):
             # 保存品牌logo图片，返回品牌所在路径
             brand_path = save_the_brand(path,brand[1][i],brand[2][i])
             # 获取品牌下的车系数据
