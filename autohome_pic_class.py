@@ -7,6 +7,7 @@ import requests
 from lxml import etree
 import os
 
+
 class code_collector(object):
 
     def __init__(self, url='https://www.autohome.com.cn/car/', letter='A'):
@@ -122,6 +123,7 @@ class code_collector(object):
                 with open(car_path, 'wb') as f:
                     f.write(car_pic.content)
         return
+
 
 if __name__ == '__main__':
     autohome = code_collector()
